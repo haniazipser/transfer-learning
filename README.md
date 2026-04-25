@@ -26,7 +26,9 @@ python src/get_kaggle_data.py
 ---
 Step 4. Correct Data Structure
 Move downloaded file to data package
+
 After extraction:
+
     data/corn
      ├── train/
      ├── test/
