@@ -1,11 +1,11 @@
 from dataclasses import dataclass
-from pathlib import Path
+import os
 import torch
 
 
 @dataclass
 class Config:
-    data_dir: str = r"C:\Users\Hania\transfer-learning\src\data\corn"
+    data_dir: str = os.path.join("src", "data", "corn")
     val_split: float = 0.2
     batch_size: int = 32
     num_epochs: int = 15

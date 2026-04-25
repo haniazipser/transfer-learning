@@ -3,6 +3,7 @@ import pandas as pd
 import os
 from PIL import Image
 
+#no labels??
 class KaggleTestDataset(Dataset):
     def __init__(self, csv_file, data_dir, transform=None):
         self.data = pd.read_csv(csv_file)

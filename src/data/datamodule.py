@@ -1,7 +1,7 @@
 import os
 
 import torch
-from torch.utils.data import DataLoader
+from torch.utils.data import DataLoader, random_split
 from torchvision import transforms
 from src.config import Config
 from src.data.KaggleDataset import KaggleDataset
@@ -19,13 +19,34 @@ TRANSFORM = transforms.Compose([
 
 class DataModule:
     def __init__(self, config: Config):
-        train = KaggleDataset(
+        full_train = KaggleDataset(
             csv_file=os.path.join(config.data_dir, "train.csv"),
             data_dir=config.data_dir,
             transform=TRANSFORM
         )
 
-        self.num_classes = len(train.labels)
+        val_size = int(len(full_train) * config.val_split)
+        train_size = len(full_train) - val_size
+
+        train_dataset, val_dataset = random_split(
+            full_train,
+            [train_size, val_size],
+            generator=torch.Generator().manual_seed(42)
+        )
+
+        self.train_loader = DataLoader(
+            train_dataset,
+            batch_size=config.batch_size,
+            shuffle=True
+        )
+
+        self.val_loader = DataLoader(
+            val_dataset,
+            batch_size=config.batch_size,
+            shuffle=False
+        )
+
+        self.num_classes = len(full_train.labels)
 
         test = KaggleTestDataset(
             csv_file=os.path.join(config.data_dir, "test.csv"),
@@ -39,8 +60,3 @@ class DataModule:
             shuffle=False
         )
 
-        self.train_loader = DataLoader(
-            train,
-            batch_size=config.batch_size,
-            shuffle=True
-        )

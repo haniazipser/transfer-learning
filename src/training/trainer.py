@@ -21,13 +21,11 @@ class Trainer:
         self.history    = {"train_loss": [], "val_loss": [], "val_acc": []}
 
     def fit(self):
-        print(f"using {self.device}")
         model     = self.backbone.model.to(self.device)
         criterion = nn.CrossEntropyLoss()
         optimizer = Adam(self.backbone.trainable_params(), lr=self.config.lr)
 
         for epoch in range(1, self.config.num_epochs + 1):
-            print("training")
             # --- train ---
             model.train()
             train_loss = 0.0
@@ -38,22 +36,19 @@ class Trainer:
                 loss.backward()
                 optimizer.step()
                 train_loss += loss.item() * x.size(0)
-                print("ok")
             train_loss /= len(self.data.train_loader.dataset)
-
-            print("end of training")
 
             # --- val ---
             model.eval()
             val_loss, correct = 0.0, 0
             with torch.no_grad():
-                for x, y in self.data.test_loader:
+                for x, y in self.data.val_loader:
                     x, y = x.to(self.device), y.to(self.device)
                     out  = model(x)
                     val_loss += criterion(out, y).item() * x.size(0)
                     correct  += (out.argmax(1) == y).sum().item()
-            val_loss /= len(self.data.test_loader.dataset)
-            val_acc   = correct / len(self.data.test_loader.dataset)
+            val_loss /= len(self.data.val_loader.dataset)
+            val_acc   = correct / len(self.data.val_loader.dataset)
 
             self.history["train_loss"].append(train_loss)
             self.history["val_loss"].append(val_loss)
