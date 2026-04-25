@@ -10,6 +10,5 @@ class Config:
     batch_size: int = 32
     num_epochs: int = 15
     lr: float = 1e-3
-    num_workers: int = 4
     seed: int = 42
     device: str = "cuda" if torch.cuda.is_available() else "cpu"

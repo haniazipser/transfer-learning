@@ -37,5 +37,5 @@ After extraction:
 
 ## Start training
 
-```python run_experiment.py```
+```python src/run_experiment.py```
 

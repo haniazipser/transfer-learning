@@ -18,6 +18,7 @@ class ResNet50(BaseBackbone):
 
     def _build(self):
         m = models.resnet50(weights=models.ResNet50_Weights.IMAGENET1K_V1)
+        #m.fc is a deafult head which we override
         m.fc = nn.Linear(m.fc.in_features, self.num_classes)
         return m
 
