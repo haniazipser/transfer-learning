@@ -10,7 +10,7 @@ class Config:
     DEFAULT_DATA_DIR = REPO_ROOT / "src" / "data" / "corn"
     data_dir: str = str(DEFAULT_DATA_DIR)
     val_split: float = 0.2
-    batch_size: int = 32
+    batch_size: int = 64
     num_epochs: int = 15
     lr: float = 1e-3
     seed: int = 42

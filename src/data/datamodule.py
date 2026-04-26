@@ -43,12 +43,16 @@ class DataModule:
             train_dataset,
             batch_size=config.batch_size,
             shuffle=True,
+            num_workers=4,
+            pin_memory=True,
         )
 
         self.val_loader = DataLoader(
             val_dataset,
             batch_size=config.batch_size,
             shuffle=False,
+            num_workers=4,
+            pin_memory=True,
         )
 
         self.num_classes = len(full_train.labels)
