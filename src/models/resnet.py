@@ -19,7 +19,11 @@ class ResNet50(BaseBackbone):
     def _build(self):
         m = models.resnet50(weights=models.ResNet50_Weights.IMAGENET1K_V1)
         #m.fc is a deafult head which we override
-        m.fc = nn.Linear(m.fc.in_features, self.num_classes)
+        # resnet50 had global avg pooling, so no need to add it here
+        m.fc = nn.Sequential(
+            nn.Dropout(0.5),
+            nn.Linear(m.fc.in_features, self.num_classes)
+            )
         return m
 
     def unfreeze_last_n_blocks(self, n: int):

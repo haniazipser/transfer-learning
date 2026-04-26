@@ -1,6 +1,6 @@
 import torch
 import torch.nn as nn
-from torch.optim import Adam
+from torch.optim import AdamW
 
 from ..config import Config
 from ..data.datamodule import DataModule
@@ -23,7 +23,9 @@ class Trainer:
     def fit(self):
         model     = self.backbone.model.to(self.device)
         criterion = nn.CrossEntropyLoss()
-        optimizer = Adam(self.backbone.trainable_params(), lr=self.config.lr)
+        optimizer = AdamW(self.backbone.trainable_params(), lr=self.config.lr, weight_decay=self.config.l2)
+        min_val_loss = float("inf")
+        patience_counter = 0
 
         for epoch in range(1, self.config.num_epochs + 1):
             # --- train ---
@@ -49,6 +51,11 @@ class Trainer:
                     correct  += (out.argmax(1) == y).sum().item()
             val_loss /= len(self.data.val_loader.dataset)
             val_acc   = correct / len(self.data.val_loader.dataset)
+            if(val_loss < min_val_loss):
+                min_val_loss = val_loss
+                patience_counter = 0
+            else:
+                patience_counter += 1
 
             self.history["train_loss"].append(train_loss)
             self.history["val_loss"].append(val_loss)
@@ -56,5 +63,9 @@ class Trainer:
 
             print(f"Epoch {epoch:>2}/{self.config.num_epochs} | "
                   f"train_loss={train_loss:.4f} val_loss={val_loss:.4f} val_acc={val_acc:.4f}")
+            
+            if patience_counter >= self.config.patience:
+                print(f"Early stopping at epoch {epoch} due to no improvement in val_loss for {self.config.patience} consecutive epochs.")
+                break
 
         return self.history
