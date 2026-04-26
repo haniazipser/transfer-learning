@@ -1,11 +1,14 @@
 from dataclasses import dataclass
-import os
+from pathlib import Path
+
 import torch
 
 
 @dataclass
 class Config:
-    data_dir: str = os.path.join("src", "data", "corn")
+    REPO_ROOT = Path(__file__).resolve().parent.parent
+    DEFAULT_DATA_DIR = REPO_ROOT / "src" / "data" / "corn"
+    data_dir: str = str(DEFAULT_DATA_DIR)
     val_split: float = 0.2
     batch_size: int = 32
     num_epochs: int = 15

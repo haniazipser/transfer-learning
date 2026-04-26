@@ -2,9 +2,9 @@ import torch
 import torch.nn as nn
 from torch.optim import Adam
 
-from src.config import Config
-from src.data.datamodule import DataModule
-from src.models.base_backbone import BaseBackbone
+from ..config import Config
+from ..data.datamodule import DataModule
+from ..models.base_backbone import BaseBackbone
 
 
 class Trainer:
