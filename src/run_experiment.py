@@ -1,4 +1,11 @@
-import torch
+import json
+import sys
+from pathlib import Path
+
+ROOT_DIR = Path(__file__).resolve().parent
+REPO_ROOT = ROOT_DIR.parent
+if str(REPO_ROOT) not in sys.path:
+    sys.path.insert(0, str(REPO_ROOT))
 
 from src.config import Config
 from src.data.datamodule import DataModule
@@ -45,7 +52,8 @@ for k, v in all_results.items():
     best_acc = max(v["val_acc"])
     print(f"Unfreeze {k}: best val_acc = {best_acc:.4f}")
 
-import json
+    results_path = REPO_ROOT / "results.json"
+    with open(results_path, "w", encoding="utf-8") as f:
+        json.dump(all_results, f, indent=2)
 
-with open("results.json", "w") as f:
-    json.dump(all_results, f)
+    print("Saved results to", results_path)

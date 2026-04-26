@@ -1,4 +1,4 @@
-from src.models.base_backbone import BaseBackbone
+from .base_backbone import BaseBackbone
 import torch.nn as nn
 import torchvision.models as models
 
