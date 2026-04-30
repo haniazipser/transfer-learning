@@ -1,5 +1,7 @@
 import json
 import sys
+import argparse
+from datetime import datetime
 from pathlib import Path
 
 ROOT_DIR = Path(__file__).resolve().parent
@@ -7,67 +9,144 @@ REPO_ROOT = ROOT_DIR.parent
 if str(REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(REPO_ROOT))
 
+from multiprocessing import freeze_support
 from src.config import Config
 from src.data.datamodule import DataModule
 from src.models.convnext import ConvNeXtTiny
 from src.models.efficientnet import EfficientNetB0
 from src.models.resnet import ResNet50
 from src.training.trainer import Trainer
-from multiprocessing import freeze_support
+
+RESULTS_DIR = REPO_ROOT / "results"
+
+
+def load_results(path: Path) -> dict:
+    with open(path, encoding="utf-8") as f:
+        return json.load(f)
+
+
+def save_results(results: dict, path: Path) -> None:
+    with open(path, "w", encoding="utf-8") as f:
+        json.dump(results, f, indent=2)
+
+
+def is_done(results: dict, backbone_name: str, level: int) -> bool:
+    return (
+        backbone_name in results
+        and str(level) in results[backbone_name]
+        and results[backbone_name][str(level)].get("status") == "done"
+    )
+
+
+def parse_args():
+    parser = argparse.ArgumentParser()
+    parser.add_argument(
+        "--run-id",
+        type=str,
+        default=None,
+        help="ID istniejącego runu do wznowienia (np. 2025-04-30_14-22-01)",
+    )
+    return parser.parse_args()
+
 
 def main():
-    # ── config ────────────────────────────────────────────────────────────────────
-    config = Config()
+    args = parse_args()
+    RESULTS_DIR.mkdir(exist_ok=True)
 
+    if args.run_id:
+        run_id = args.run_id
+        results_path = RESULTS_DIR / f"{run_id}.json"
+        if not results_path.exists():
+            print(f"[ERROR] File not found: {results_path}")
+            sys.exit(1)
+        all_results = load_results(results_path)
+        print(f"[RESUME] Resuming run: {run_id}")
+    else:
+        run_id = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
+        results_path = RESULTS_DIR / f"{run_id}.json"
+        all_results = {}
+        print(f"[NEW] New run: {run_id}")
+
+    config = Config()
     BACKBONES = [ConvNeXtTiny, ResNet50, EfficientNetB0]
     UNFREEZE_LEVELS = [0, 1, 2, 3, -1]
 
-    # ── data ──────────────────────────────────────────────────────────────────────
     data = DataModule(config)
-
-    print(f"Dataset size: {len(data.train_loader.dataset)}")
-    print(f"Num classes: {data.num_classes}")
+    print(f"Dataset size:  {len(data.train_loader.dataset)}")
+    print(f"Num classes:   {data.num_classes}")
     print(f"Train batches: {len(data.train_loader)}")
-    print(f"Val batches: {len(data.val_loader)}")
-
-    # ── experiments loop ──────────────────────────────────────────────────────────
-    all_results = {}
+    print(f"Val batches:   {len(data.val_loader)}")
 
     for backbone_cls in BACKBONES:
-        all_results[backbone_cls.__name__] = {}
+        backbone_name = backbone_cls.__name__
+        all_results.setdefault(backbone_name, {})
 
         for n in UNFREEZE_LEVELS:
-            print("\n" + "="*50)
-            print(f"Backbone: {backbone_cls.__name__}")
+            key = str(n)
+
+            if args.run_id and is_done(all_results, backbone_name, n):
+                print(f"[SKIP] {backbone_name} / unfreeze={n} — already done")
+                continue
+
+            print("\n" + "=" * 50)
+            print(f"Backbone:       {backbone_name}")
             print(f"Unfreeze level: {n}")
 
-            backbone = backbone_cls(num_classes=data.num_classes)
-            backbone.unfreeze_last_n_blocks(n)
+            all_results[backbone_name][key] = {
+                "status": "running",
+                "run_id": run_id,
+                "started_at": datetime.now().isoformat(),
+            }
+            save_results(all_results, results_path)
 
-            trainer = Trainer(
-                backbone=backbone,
-                data=data,
-                config=config,
-            )
+            try:
+                backbone = backbone_cls(num_classes=data.num_classes)
+                backbone.unfreeze_last_n_blocks(n)
+                trainer = Trainer(backbone=backbone, data=data, config=config)
+                history = trainer.fit()
 
-            history = trainer.fit()
-            all_results[backbone_cls.__name__][n] = history
+                history_records = [
+                    {
+                        "epoch": i + 1,
+                        "train_loss": history["train_loss"][i],
+                        "val_loss": history["val_loss"][i],
+                        "val_acc": history["val_acc"][i],
+                    }
+                    for i in range(len(history["val_acc"]))
+                ]
 
-    # ── summary ───────────────────────────────────────────────────────────────────
+                all_results[backbone_name][key] = {
+                    "status": "done",
+                    "run_id": run_id,
+                    "started_at": all_results[backbone_name][key]["started_at"],
+                    "finished_at": datetime.now().isoformat(),
+                    "epochs_trained": len(history_records),
+                    "early_stopped": len(history_records) < config.num_epochs,
+                    "history": history_records,
+                    "best_val_acc": max(history["val_acc"]),
+                }
+
+            except Exception as e:
+                all_results[backbone_name][key] = {
+                    "status": "failed",
+                    "run_id": run_id,
+                    "error": str(e),
+                }
+                print(f"[ERROR] {backbone_name} / unfreeze={n}: {e}")
+
+            save_results(all_results, results_path)
+
     print("\nFINAL RESULTS:")
     for backbone_name, runs in all_results.items():
         print(f"\n{backbone_name}:")
-        for level, history in runs.items():
-            best_acc = max(history["val_acc"])
-            print(f"  Unfreeze {level}: best val_acc = {best_acc:.4f}")
+        for level, entry in runs.items():
+            status = entry.get("status", "?")
+            if status == "done":
+                print(f"  Unfreeze {level}: best val_acc = {entry['best_val_acc']:.4f}")
+            else:
+                print(f"  Unfreeze {level}: {status}")
 
-    results_path = REPO_ROOT / "results.json"
-    with open(results_path, "w", encoding="utf-8") as f:
-        json.dump(all_results, f, indent=2)
-
-    print("Saved results to", results_path)
-
-
+    print(f"\nSaved: {results_path}")
 
 
 if __name__ == "__main__":
