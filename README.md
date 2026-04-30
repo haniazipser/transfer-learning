@@ -45,8 +45,6 @@ After extraction:
 
 ## Start training
 
-## Usage
-
 ```bash
 # New run
 python run_experiment.py --note "augmentation v2"
@@ -57,7 +55,7 @@ python run_experiment.py --run-id 2025-04-30_14-22-01
 
 Run ID is printed at startup and matches the filename in `results/`.
 
-## Gotchas
+### Gotchas
 
 - Resume skips `done` experiments and retries `failed` and `running` ones — each retried experiment always starts from epoch 1, not from where it was interrupted.
 - Forgetting `--run-id` after a crash creates a new file — old progress is not lost but not resumed either.
