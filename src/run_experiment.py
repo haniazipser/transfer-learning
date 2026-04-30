@@ -46,6 +46,13 @@ def parse_args():
         default=None,
         help="ID istniejącego runu do wznowienia (np. 2025-04-30_14-22-01)",
     )
+
+    parser.add_argument(
+        "--note",
+        type=str,
+        default=None,
+        help="Krótki opis runu (np. 'baseline' lub 'augmentation-v2')",
+    )
     return parser.parse_args()
 
 
@@ -64,7 +71,13 @@ def main():
     else:
         run_id = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
         results_path = RESULTS_DIR / f"{run_id}.json"
-        all_results = {}
+        all_results = {
+            "_meta": {
+                "run_id": run_id,
+                "note": args.note,
+                "started_at": datetime.now().isoformat(),
+            }
+        }
         print(f"[NEW] New run: {run_id}")
 
     config = Config()
@@ -138,6 +151,8 @@ def main():
 
     print("\nFINAL RESULTS:")
     for backbone_name, runs in all_results.items():
+        if backbone_name == "_meta":
+            continue
         print(f"\n{backbone_name}:")
         for level, entry in runs.items():
             status = entry.get("status", "?")

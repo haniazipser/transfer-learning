@@ -49,10 +49,10 @@ After extraction:
 
 ```bash
 # New run
-python experiment.py
+python run_experiment.py --note "augmentation v2"
 
 # Resume after crash
-python experiment.py --run-id 2025-04-30_14-22-01
+python run_experiment.py --run-id 2025-04-30_14-22-01
 ```
 
 Run ID is printed at startup and matches the filename in `results/`.
