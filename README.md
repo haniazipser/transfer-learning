@@ -12,12 +12,18 @@ pip install kaggle
 ---
 Step 2: Authenticate 
 
-Go to Kaggle → Account → API
-Generate legacy API Token
-You receive `kaggle.json` 
-Place token in:
-    C:\Users\<USER>\.kaggle\kaggle.json
+- Go to Kaggle → Account → API
+
+- Generate legacy API Token
+
+- You receive `kaggle.json` 
+
+- Place token in:
+
+    ```C:\Users\<USER>\.kaggle\kaggle.json```
+    
 (create .kaggle if it does not exist)
+
 ---
 Step 3: Download dataset
 ``` bash
