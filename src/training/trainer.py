@@ -23,7 +23,13 @@ class Trainer:
     def fit(self):
         model     = self.backbone.model.to(self.device)
         criterion = nn.CrossEntropyLoss()
-        optimizer = AdamW(self.backbone.trainable_params(), lr=self.config.lr, weight_decay=self.config.l2)
+        optimizer = AdamW(
+            self.backbone.parameter_groups(
+                backbone_lr=self.config.backbone_lr,
+                head_lr=self.config.head_lr,
+            ),
+            weight_decay=self.config.l2,
+        )
         min_val_loss = float("inf")
         patience_counter = 0
 
