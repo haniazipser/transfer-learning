@@ -63,3 +63,11 @@ Run ID is printed at startup and matches the filename in `results/`.
 - Forgetting `--run-id` after a crash creates a new file — old progress is not lost but not resumed either.
 - `--run-id` must match the filename exactly: `YYYY-MM-DD_HH-MM-SS`.
 
+## Visualizing results
+
+```bash
+python visualize_data.py --run-id 2025-04-30_14-22-01
+```
+
+Plots are saved to `results/visualisations/<run-id>/`, one loss and one accuracy chart per backbone, with a subplot per unfreeze level. A red dashed line marks early stopping where applicable.
+
