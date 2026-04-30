@@ -9,6 +9,8 @@ if str(REPO_ROOT) not in sys.path:
 
 from src.config import Config
 from src.data.datamodule import DataModule
+from src.models.convnext import ConvNeXtTiny
+from src.models.efficientnet import EfficientNetB0
 from src.models.resnet import ResNet50
 from src.training.trainer import Trainer
 from multiprocessing import freeze_support
@@ -17,7 +19,7 @@ def main():
     # ── config ────────────────────────────────────────────────────────────────────
     config = Config()
 
-    BACKBONE = ResNet50
+    BACKBONES = [ConvNeXtTiny, ResNet50, EfficientNetB0]
     UNFREEZE_LEVELS = [0, 1, 2, 3, -1]
 
     # ── data ──────────────────────────────────────────────────────────────────────
@@ -31,34 +33,39 @@ def main():
     # ── experiments loop ──────────────────────────────────────────────────────────
     all_results = {}
 
-    for n in UNFREEZE_LEVELS:
-        print("\n" + "="*50)
-        print(f"Backbone: {BACKBONE.__name__}")
-        print(f"Unfreeze level: {n}")
+    for backbone_cls in BACKBONES:
+        all_results[backbone_cls.__name__] = {}
 
-        backbone = BACKBONE(num_classes=data.num_classes)
-        backbone.unfreeze_last_n_blocks(n)
+        for n in UNFREEZE_LEVELS:
+            print("\n" + "="*50)
+            print(f"Backbone: {backbone_cls.__name__}")
+            print(f"Unfreeze level: {n}")
 
-        trainer = Trainer(
-            backbone=backbone,
-            data=data,
-            config=config,
-        )
+            backbone = backbone_cls(num_classes=data.num_classes)
+            backbone.unfreeze_last_n_blocks(n)
 
-        history = trainer.fit()
-        all_results[n] = history
+            trainer = Trainer(
+                backbone=backbone,
+                data=data,
+                config=config,
+            )
+
+            history = trainer.fit()
+            all_results[backbone_cls.__name__][n] = history
 
     # ── summary ───────────────────────────────────────────────────────────────────
     print("\nFINAL RESULTS:")
-    for k, v in all_results.items():
-        best_acc = max(v["val_acc"])
-        print(f"Unfreeze {k}: best val_acc = {best_acc:.4f}")
+    for backbone_name, runs in all_results.items():
+        print(f"\n{backbone_name}:")
+        for level, history in runs.items():
+            best_acc = max(history["val_acc"])
+            print(f"  Unfreeze {level}: best val_acc = {best_acc:.4f}")
 
-        results_path = REPO_ROOT / "results.json"
-        with open(results_path, "w", encoding="utf-8") as f:
-            json.dump(all_results, f, indent=2)
+    results_path = REPO_ROOT / "results.json"
+    with open(results_path, "w", encoding="utf-8") as f:
+        json.dump(all_results, f, indent=2)
 
-        print("Saved results to", results_path)
+    print("Saved results to", results_path)
 
 
 

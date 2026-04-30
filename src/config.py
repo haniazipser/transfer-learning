@@ -12,8 +12,9 @@ class Config:
     val_split: float = 0.2
     batch_size: int = 64
     num_epochs: int = 40
-    lr: float = 1e-4
-    l2: float = 1e-4
+    head_lr: float = 1e-4
+    backbone_lr: float = 1e-6
+    l2: float = 1e-3
     seed: int = 42
     patience: int = 5
     device: str = "cuda" if torch.cuda.is_available() else "cpu"
