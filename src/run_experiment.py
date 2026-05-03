@@ -115,7 +115,7 @@ def main():
             try:
                 backbone = backbone_cls(num_classes=data.num_classes)
                 backbone.unfreeze_last_n_blocks(n)
-                trainer = Trainer(backbone=backbone, data=data, config=config)
+                trainer = Trainer(backbone=backbone, data=data, config=config, unfreeze=n)
                 history = trainer.fit()
 
                 history_records = [
