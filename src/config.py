@@ -17,4 +17,5 @@ class Config:
     l2: float = 1e-3
     seed: int = 42
     patience: int = 5
+    eta_min = 0
     device: str = "cuda" if torch.cuda.is_available() else "cpu"
