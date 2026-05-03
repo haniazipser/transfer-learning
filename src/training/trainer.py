@@ -1,6 +1,7 @@
 import torch
 import torch.nn as nn
 from torch.optim import AdamW
+from torch.optim.lr_scheduler import CosineAnnealingLR
 
 from ..config import Config
 from ..data.datamodule import DataModule
@@ -30,6 +31,13 @@ class Trainer:
             ),
             weight_decay=self.config.l2,
         )
+
+        scheduler = CosineAnnealingLR(
+            optimizer,
+            T_max=self.config.num_epochs,
+            eta_min=0,  #both groups to 0
+        )
+
         min_val_loss = float("inf")
         patience_counter = 0
 
@@ -73,5 +81,7 @@ class Trainer:
             if patience_counter >= self.config.patience:
                 print(f"Early stopping at epoch {epoch} due to no improvement in val_loss for {self.config.patience} consecutive epochs.")
                 break
+
+            scheduler.step()
 
         return self.history
