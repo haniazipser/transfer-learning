@@ -11,9 +11,9 @@ class Config:
     data_dir: str = str(DEFAULT_DATA_DIR)
     val_split: float = 0.2
     batch_size: int = 64
-    num_epochs: int = 40
-    head_lr: float = 1e-4
-    backbone_lr: float = 1e-6
+    num_epochs: int = 15
+    head_lr: float = 1e-3
+    backbone_lr: float = 1e-5
     l2: float = 1e-3
     seed: int = 42
     patience: int = 5
