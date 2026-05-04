@@ -1,0 +1,108 @@
+_wandb:
+    value:
+        cli_version: 0.26.1
+        e:
+            ezhz4u9t6r0h7uyv7wd4oabwq931dfqf:
+                args:
+                    - --note
+                    - baseline+scheduler bs64, h_lr 1e-3 b_lr 1e-5 l2 1e-3 p5
+                cpu_count: 8
+                cpu_count_logical: 16
+                cudaVersion: "13.1"
+                disk:
+                    /:
+                        total: "999173521408"
+                        used: "712473460736"
+                email: haniazipser2004@gmail.com
+                executable: C:\Users\Cooke\AppData\Local\Programs\Python\Python313\python.exe
+                git:
+                    commit: 69eac47027a1495c40dbc5821b14f08208c718ff
+                    remote: https://github.com/haniazipser/transfer-learning
+                gpu: NVIDIA GeForce RTX 2080
+                gpu_count: 1
+                gpu_nvidia:
+                    - architecture: Turing
+                      cudaCores: 2944
+                      memoryTotal: "8589934592"
+                      name: NVIDIA GeForce RTX 2080
+                      uuid: GPU-3504399b-d508-138b-5c45-c7b9aa8a1f1f
+                host: Standows
+                memory:
+                    total: "34245107712"
+                os: Windows-11-10.0.26200-SP0
+                program: -m src.run_experiment
+                python: CPython 3.13.13
+                root: C:\Users\Cooke\Projects\transfer-learning
+                startedAt: "2026-05-03T22:25:37.104905Z"
+                writerId: ezhz4u9t6r0h7uyv7wd4oabwq931dfqf
+        m: []
+        python_version: 3.13.13
+        t:
+            "1":
+                - 1
+                - 5
+                - 41
+                - 53
+            "2":
+                - 1
+                - 5
+                - 41
+                - 53
+            "3":
+                - 2
+                - 13
+                - 16
+            "4": 3.13.13
+            "5": 0.26.1
+            "8":
+                - 2
+                - 3
+            "12": 0.26.1
+            "13": windows-amd64
+        visualize:
+            confusion_matrix:
+                panel_config:
+                    fieldSettings:
+                        Actual: Actual
+                        Predicted: Predicted
+                        nPredictions: nPredictions
+                    panelDefId: wandb/confusion_matrix/v1
+                    stringSettings:
+                        title: Confusion Matrix Curve
+                    transform:
+                        name: tableWithLeafColNames
+                    userQuery:
+                        queryFields:
+                            - args:
+                                - name: runSets
+                                  value: ${runSets}
+                              fields:
+                                - fields: []
+                                  name: id
+                                - fields: []
+                                  name: name
+                                - fields: []
+                                  name: _defaultColorIndex
+                                - args:
+                                    - name: tableKey
+                                      value: confusion_matrix_table
+                                  fields: []
+                                  name: summaryTable
+                              name: runSets
+                panel_type: Vega2
+backbone:
+    value: EfficientNetB0
+backbone_lr:
+    value: 1e-05
+batch_size:
+    value: 64
+head_lr:
+    value: 0.001
+l2:
+    value: 0.001
+num_epochs:
+    value: 15
+patience:
+    value: 5
+val_split:
+    value: 0.2
