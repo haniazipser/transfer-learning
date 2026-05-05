@@ -72,6 +72,7 @@ class DataModule:
         )
 
         self.num_classes = len(full_train_aug.labels)
+        self.train_labels = full_train_aug.encoded_labels()
 
         test = KaggleTestDataset(
             csv_file=str(test_csv),

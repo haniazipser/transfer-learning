@@ -2,12 +2,15 @@ import torch
 import torch.nn as nn
 from torch.optim import AdamW
 from torch.optim.lr_scheduler import CosineAnnealingLR
+from sklearn.utils.class_weight import compute_class_weight
+import numpy as np
 import wandb
 
 from .metrics import MetricsLogger
 from ..config import Config
 from ..data.datamodule import DataModule
 from ..models.base_backbone import BaseBackbone
+
 
 
 class Trainer:
@@ -43,9 +46,19 @@ class Trainer:
             class_names=data.train_loader.dataset.dataset.labels
         )
 
+        weights = compute_class_weight(
+            class_weight="balanced",
+            classes=np.arange(data.num_classes),
+            y=data.train_labels,
+        )
+
+        self.criterion = nn.CrossEntropyLoss(
+            weight=torch.tensor(weights, dtype=torch.float)
+        )
+
     def fit(self):
         model     = self.backbone.model.to(self.device)
-        criterion = nn.CrossEntropyLoss()
+        criterion = self.criterion.to(self.device)
         optimizer = AdamW(
             self.backbone.parameter_groups(
                 backbone_lr=self.config.backbone_lr,
