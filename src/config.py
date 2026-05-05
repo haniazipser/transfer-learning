@@ -10,6 +10,7 @@ class Config:
     DEFAULT_DATA_DIR = REPO_ROOT / "src" / "data" / "corn"
     data_dir: str = str(DEFAULT_DATA_DIR)
     val_split: float = 0.2
+    oversample_classes: tuple[str, ...] = ("silkcut", "discolored")
     batch_size: int = 64
     num_epochs: int = 15
     head_lr: float = 1e-3

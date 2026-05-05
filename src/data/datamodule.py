@@ -1,7 +1,8 @@
 from pathlib import Path
+from collections import Counter
 
 import torch
-from torch.utils.data import DataLoader, random_split
+from torch.utils.data import DataLoader, WeightedRandomSampler
 from torchvision import transforms
 
 from ..config import Config
@@ -55,10 +56,29 @@ class DataModule:
         train_dataset = torch.utils.data.Subset(full_train_aug, indices[:train_size])
         val_dataset = torch.utils.data.Subset(full_train_eval, indices[train_size:])
 
+        train_labels = [
+            full_train_aug.data.iloc[idx]["label"]
+            for idx in indices[:train_size]
+        ]
+        class_counts = Counter(train_labels)
+        target_classes = set(config.oversample_classes)
+        max_count = max(class_counts.values()) if class_counts else 1
+
+        sample_weights = [
+            (max_count / class_counts[label]) if label in target_classes else 1.0
+            for label in train_labels
+        ]
+        train_sampler = WeightedRandomSampler(
+            weights=sample_weights,
+            num_samples=len(sample_weights),
+            replacement=True,
+        )
+
         self.train_loader = DataLoader(
             train_dataset,
             batch_size=config.batch_size,
-            shuffle=True,
+            sampler=train_sampler,
+            shuffle=False,
             num_workers=4,
             pin_memory=True,
         )
