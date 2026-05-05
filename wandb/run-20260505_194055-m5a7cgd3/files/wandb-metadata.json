@@ -1,0 +1,42 @@
+{
+  "os":  "Windows-11-10.0.26200-SP0",
+  "python":  "CPython 3.13.13",
+  "startedAt":  "2026-05-05T17:40:55.976196Z",
+  "args":  [
+    "--note",
+    "baseline+scheduler+oversampling+classweights bs64, h_lr 1e-3 b_lr 1e-5 l2 1e-3 p5"
+  ],
+  "program":  "-m src.run_experiment",
+  "git":  {
+    "remote":  "https://github.com/haniazipser/transfer-learning",
+    "commit":  "ad8e6113bd6ac5e1bb3be083fe78190a0959287f"
+  },
+  "email":  "haniazipser2004@gmail.com",
+  "root":  "C:\\Users\\Cooke\\Projects\\transfer-learning",
+  "host":  "Standows",
+  "executable":  "C:\\Users\\Cooke\\AppData\\Local\\Programs\\Python\\Python313\\python.exe",
+  "cpu_count":  8,
+  "cpu_count_logical":  16,
+  "gpu":  "NVIDIA GeForce RTX 2080",
+  "gpu_count":  1,
+  "disk":  {
+    "/":  {
+      "total":  "999173521408",
+      "used":  "718154891264"
+    }
+  },
+  "memory":  {
+    "total":  "34245107712"
+  },
+  "gpu_nvidia":  [
+    {
+      "name":  "NVIDIA GeForce RTX 2080",
+      "memoryTotal":  "8589934592",
+      "cudaCores":  2944,
+      "architecture":  "Turing",
+      "uuid":  "GPU-3504399b-d508-138b-5c45-c7b9aa8a1f1f"
+    }
+  ],
+  "cudaVersion":  "13.1",
+  "writerId":  "a2seez8v3y38lfghkho0r6rfxrcdm6or"
+}
