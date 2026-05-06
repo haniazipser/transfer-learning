@@ -81,8 +81,8 @@ def main():
         print(f"[NEW] New run: {run_id}")
 
     config = Config()
-    BACKBONES = [ConvNeXtTiny, ResNet50, EfficientNetB0]
-    UNFREEZE_LEVELS = [0, 1, 2, 3, -1]
+    BACKBONES = [ConvNeXtTiny, ResNet50]
+    UNFREEZE_LEVELS = [2, 3, -1]
 
     data = DataModule(config)
     print(f"Dataset size:  {len(data.train_loader.dataset)}")
