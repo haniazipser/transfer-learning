@@ -27,45 +27,31 @@ Step 2: Authenticate
 ---
 Step 3: Download dataset
 ``` bash
-python src/get_kaggle_data.py
+kaggle datasets download -d picekl/czechlynx -p data/kaggle-data --unzip
 ```
 ---
 Step 4. Correct Data Structure
-Move downloaded file to data package
-
 After extraction:
 
-    data/corn
-     ├── train/
-     ├── test/
-     ├── train.csv
-     ├── test.csv
-     ├── sample_submission.csv
+    data/kaggle-data
+     ├── CzechLynx/
+     ├── CzechLynx_Sythetic/
+     ├── CzechLynxDataset-Metadata-Real.csv
+     ├── CzechLynxDataset-Metadata-Synthetic.csv
 ---
 
 ## Start training
 
 ```bash
 # New run
-python run_experiment.py --note "augmentation v2"
-
-# Resume after crash
-python run_experiment.py --run-id 2025-04-30_14-22-01
+python run_baseline.py 
 ```
 
-Run ID is printed at startup and matches the filename in `results/`.
 
-### Gotchas
-
-- Resume skips `done` experiments and retries `failed` and `running` ones — each retried experiment always starts from epoch 1, not from where it was interrupted.
-- Forgetting `--run-id` after a crash creates a new file — old progress is not lost but not resumed either.
-- `--run-id` must match the filename exactly: `YYYY-MM-DD_HH-MM-SS`.
-
-## Visualizing results
+## Visualizing dataset
 
 ```bash
-python visualize_data.py --run-id 2025-04-30_14-22-01
+python explore_data.py 
 ```
 
-Plots are saved to `results/visualisations/<run-id>/`, one loss and one accuracy chart per backbone, with a subplot per unfreeze level. A red dashed line marks early stopping where applicable.
 
