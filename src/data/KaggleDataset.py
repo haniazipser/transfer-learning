@@ -14,6 +14,9 @@ class KaggleDataset(Dataset):
         self.labels = sorted(self.data["label"].unique())
         self.label2idx = {l: i for i, l in enumerate(self.labels)}
 
+    def encoded_labels(self):
+        return self.data["label"].map(self.label2idx).values
+
     def __len__(self):
         return len(self.data)
 
